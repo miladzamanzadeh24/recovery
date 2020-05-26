@@ -1,0 +1,75 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+
+
+typedef uint8_t BYTE;
+
+
+int main(int argc, char *argv[])
+{
+    if (argc != 2)
+    {
+        printf("Usage: ./recover image\n");
+
+        return 1;
+    }
+
+
+    FILE *card = fopen(argv[1], "r");
+
+    if (card == NULL)
+    {
+        return 1;
+    }
+
+    BYTE *buffer = malloc(512 * sizeof(BYTE));
+
+    //check is the firt jpeg or not
+    bool firstj = false;
+
+    int jnamecount = 0;
+
+    char jname[7];
+
+    while (true)
+    {
+        int x = fread(buffer, sizeof(BYTE), 512, card);
+
+        if (buffer[0] == 0xff && buffer[1] == 0xd8 && buffer[2] == 0xff && (buffer[3] & 0xf0) == 0xe0)
+        {
+
+            sprintf(jname, "%03i.jpg", jnamecount);
+
+            if (!firstj)
+            {
+                FILE *write = fopen(jname, "w");
+                firstj = true;
+            }
+            else
+            {
+                fclose(write);
+                FILE *write = fopen(jname, "w");
+            }
+
+            jnamecount++;
+
+        }
+        if (firstj)
+        {
+            fwrite(buffer, sizeof(BYTE), 512, write);
+        }
+
+        //check the end of file
+        if (x < 512)
+        {
+            break;
+        }
+
+    }
+
+    fclose(write);
+    fclose(card);
+    free(buffer);
+
+}
