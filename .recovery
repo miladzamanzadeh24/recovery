@@ -27,15 +27,18 @@ int main(int argc, char *argv[])
 
     //check is the firt jpeg or not
     bool firstj = false;
-
+    
+    //conter for set diffrent name in jpeg files
     int jnamecount = 0;
-
+    
+    //for store "000.jpg" 
     char jname[7];
 
     while (true)
     {
         int x = fread(buffer, sizeof(BYTE), 512, card);
-
+        
+        //Identification new jpeg 
         if (buffer[0] == 0xff && buffer[1] == 0xd8 && buffer[2] == 0xff && (buffer[3] & 0xf0) == 0xe0)
         {
 
